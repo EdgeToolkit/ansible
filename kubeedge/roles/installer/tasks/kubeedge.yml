@@ -1,0 +1,64 @@
+
+- name: Create kubeedge install cache directory if it does not exist
+  file:
+    path: /tmp/kubeedge-{{kubeedge_version}}
+    state: directory
+    mode: 0755
+  delegate_to: 
+  
+- name: Download KubeEdge tarballs
+  get_url:
+    url: "{{kubeedge_archive_url}}/v{{kubeedge_version}}/{{item}}"
+    dest: "/tmp/kubeedge-{{kubeedge_version}}/{{item}}"
+  with_items:
+  - "keadm-v{{kubeedge_version}}-linux-amd64.tar.gz"
+  - "kubeedge-v{{kubeedge_version}}-linux-amd64.tar.gz"
+  - "v{{kubeedge_version}}.tar.gz"
+  delegate_to: localhost
+
+- name: unarchive keadm, kubeedge
+  unarchive:
+    src:  "/tmp/kubeedge-{{kubeedge_version}}/{{item}}-v{{kubeedge_version}}-linux-amd64.tar.gz"
+    dest: "/tmp/kubeedge-{{kubeedge_version}}/"
+    mode: 0755
+    creates: /tmp/kubeedge-{{kubeedge_version}}/{{item}}-v{{kubeedge_version}}-linux-amd64
+  with_items:
+  - keadm
+  - kubeedge
+  delegate_to: localhost
+  
+
+- name: unarchive KubeEdge source code
+  unarchive:
+    src: /tmp/kubeedge-{{kubeedge_version}}/v{{kubeedge_version}}.tar.gz
+    dest: /tmp/kubeedge-{{kubeedge_version}}
+    creates: /tmp/kubeedge-{{kubeedge_version}}/v{{kubeedge_version}} 
+  delegate_to: localhost
+
+- name: copy cloudcore
+  copy:
+    src: "/tmp/kubeedge-{{kubeedge_version}}/kubeedge-v{{kubeedge_version}}-linux-amd64/cloud/cloudcore/cloudcore"
+    dest: "~/.local/bin/cloudcore"
+    mode: 0755
+
+- name: copy edgecore
+  copy:
+    src: "/tmp/kubeedge-{{kubeedge_version}}/kubeedge-v{{kubeedge_version}}-linux-amd64/edge/edgecore"
+    dest: "~/.local/bin/edgecore"
+    mode: 0755
+
+- name: copy keadm
+  copy:
+    src: "/tmp/kubeedge-{{kubeedge_version}}/keadm-v{{kubeedge_version}}-linux-amd64/keadm/keadm"
+    dest: "~/.local/bin/keadm"
+    mode: 0755
+
+- name: copy CRDs
+  copy:
+    src: "/tmp/kubeedge-{{kubeedge_version}}/kubeedge-{{kubeedge_version}}/build/crds/{{item}}"
+    dest: "~/.local/share/{{item}}" 
+  with_items:
+  - devices/devices_v1alpha2_device.yaml
+  - devices/devices_v1alpha2_devicemodel.yaml
+  - reliablesyncs/cluster_objectsync_v1alpha1.yaml
+  - reliablesyncs/objectsync_v1alpha1.yaml  

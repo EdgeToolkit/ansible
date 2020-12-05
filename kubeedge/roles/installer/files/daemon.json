@@ -1,0 +1,5 @@
+{
+	"exec-opts": ["native.cgroupdriver=systemd"],
+	"registry-mirrors": ["http://172.16.0.119:8050"],
+	"insecure-registries": ["172.16.192.169:8042" ]
+}

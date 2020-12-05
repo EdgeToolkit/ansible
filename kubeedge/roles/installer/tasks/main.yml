@@ -1,0 +1,25 @@
+- include: mirror.yml
+
+- name: Create host local directories 
+  file:
+    path: "~/.local/{{item.dir}}"
+    state: directory
+    mode: "{{item.mode}}"
+  with_items:
+  - {dir: bin, mode: '0775' }
+  - {dir: etc, mode: '0764' }
+  - {dir: share, mode: '0764' }
+  - {dir: share/devices, mode: '0764' }
+  - {dir: share/reliablesyncs, mode: '0764' }
+
+- include: docker.yml
+  when:
+    - ansible_distribution == "Ubuntu"
+
+- include: k8s.yml
+  when: inventory_hostname in groups['master'] or
+        inventory_hostname in groups['cloud']
+- include: cloudcore.yml
+  when: inventory_hostname in groups['cloud'] or
+- include: kubeedge.yml
+  when: inventory_hostname in groups['edge']

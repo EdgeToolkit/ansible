@@ -1,0 +1,11 @@
+ 
+- name: Generate k8s node join command
+  shell: kubeadm token create --print-join-command
+  register: output
+
+- name: Generate join command 
+  copy:
+    content: "{{output.stdout}} $*"
+    dest: ~/kubeadm-join.sh
+    force: true
+  delegate_to: localhost

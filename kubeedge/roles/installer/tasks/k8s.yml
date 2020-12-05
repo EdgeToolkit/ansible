@@ -1,0 +1,21 @@
+
+- name: install kubenets
+  become: yes
+  apt:
+    update_cache: yes
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+
+
+- name: Config load images script
+  copy:
+    src: load_images.sh
+    dest: /tmp/load_images.sh
+    force: yes
+    mode: 0755
+
+- name: Load kubernetes docker images
+  become: yes
+  shell: /tmp/load_images.sh

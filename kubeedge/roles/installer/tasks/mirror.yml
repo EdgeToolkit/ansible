@@ -1,0 +1,39 @@
+#
+# Ubuntu mirror of Aliyun
+# https://developer.aliyun.com/mirror/ubuntu?spm=a2c6h.13651102.0.0.3e221b112kuX75
+#
+- name: Config aliyun mirror for Ubuntu
+  become: yes
+  copy:
+    src: mirrors.aliyun.com/ubuntu-{{ansible_distribution_major_version}}-sources.list
+    dest: /etc/apt/sources.list
+    backup: yes
+  when:
+    - ansible_distribution == "Ubuntu" and
+      (ansible_distribution_major_version == "14" or 
+       ansible_distribution_major_version == "16" or
+       ansible_distribution_major_version == "18" or 
+       ansible_distribution_major_version == "20")
+
+- name: Config Kubenetes aliyun mirror for Ubuntu
+  become: yes
+  copy:
+    content: "deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main"
+    dest: /etc/apt/sources.list.d/kubernetes.list
+    backup: yes
+  when:
+    - ansible_distribution == "Ubuntu"
+
+- name: Auth for k8s
+  become: yes
+  shell: curl https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | apt-key add - 
+  when:
+    - ansible_distribution == "Ubuntu"
+
+- name: Update and upgrade apt packages
+  become: yes
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 #One day
+

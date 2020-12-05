@@ -1,0 +1,18 @@
+
+- name: install docker
+  become: yes
+  apt:
+    update_cache: yes
+    name:
+      - docker.io
+
+- name: Config docker registry and systemd
+  become: yes
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    backup: yes
+    
+- name: reset docker service enure previous config enabled
+  become: yes
+  shell: systemctl daemon-reload && systemctl restart docker

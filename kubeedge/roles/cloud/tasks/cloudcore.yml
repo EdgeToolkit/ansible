@@ -1,0 +1,25 @@
+
+- name: Generate cloudcore config
+  template:
+    src: cloudcore.yaml.j2
+    dest: ~/.local/etc/cloudcore.yaml
+    mode: u=rw,g=r,o=r
+
+- name: Create CRDs
+  become: yes
+  shell: |
+      export KUBECONFIG="/home/{{ansible_ssh_user}}/.kube/config" 
+      kubectl apply -f devices/devices_v1alpha2_device.yaml
+      kubectl apply -f devices/devices_v1alpha2_devicemodel.yaml
+      kubectl apply -f reliablesyncs/cluster_objectsync_v1alpha1.yaml
+      kubectl apply -f reliablesyncs/objectsync_v1alpha1.yaml
+
+  args:
+    chdir: /home/{{ansible_ssh_user}}/.local/share
+  
+- name: Copy Cloud  
+  copy:
+    src: cloud.sh
+    dest: /home/{{ansible_ssh_user}}/.local/bin/cloud.sh
+    mode: u=rwx,g=rx,o=rx
+   

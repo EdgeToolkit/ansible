@@ -1,0 +1,23 @@
+[all:vars]
+ansible_ssh_port=22
+ansible_ssh_user=k8s 
+ansible_ssh_pass=k8s 
+ansible_sudo_pass=k8s
+#ansible_ssh_private_key_file=/root/.ssh/id_rsa
+
+[master]
+master ansible_ssh_host=172.16.193.230 
+
+[cloud]
+cloud ansible_ssh_host=172.16.193.230
+
+
+[node]
+#172.16.192.241
+
+[edge]
+#172.16.192.241
+#edge-240.1 ansible_ssh_host=172.16.192.240 ansible_ssh_port=2020 ansible_ssh_user=u18 ansible_ssh_pass=u18  ansible_sudo_pass=u18
+edge-240.2 ansible_ssh_host=172.16.192.240 ansible_ssh_port=2021 ansible_ssh_user=u18 ansible_ssh_pass=u18  ansible_sudo_pass=u18
+
+

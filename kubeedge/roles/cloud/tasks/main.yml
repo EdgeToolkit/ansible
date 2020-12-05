@@ -1,0 +1,2 @@
+- include: cloudcore.yml
+  when: inventory_hostname in groups['cloud']

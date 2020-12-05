@@ -1,0 +1,4 @@
+
+- hosts: edge
+  roles:
+    - role: edge

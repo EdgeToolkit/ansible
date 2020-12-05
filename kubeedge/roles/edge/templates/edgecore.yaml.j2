@@ -1,0 +1,47 @@
+# With --minconfig , you can easily used this configurations as reference.
+# It's useful to users who are new to KubeEdge, and you can modify/create your own configs accordingly. 
+# This configuration is suitable for beginners.
+{% set cloud_ip = hostvars['cloud']['ansible_ssh_host']%}
+apiVersion: edgecore.config.kubeedge.io/v1alpha1
+database:
+  dataSource: /var/lib/kubeedge/edgecore.db
+kind: EdgeCore
+modules:
+  edgeHub:
+    heartbeat: 15
+    httpServer: https://{{cloud_ip}}:10002
+    tlsCaFile: /etc/kubeedge/ca/rootCA.crt
+    tlsCertFile: /etc/kubeedge/certs/server.crt
+    tlsPrivateKeyFile: /etc/kubeedge/certs/server.key
+    token: "{{token['stdout']}}"
+    websocket:
+      enable: true
+      handshakeTimeout: 30
+      readDeadline: 15
+      server: {{cloud_ip}}:10000
+      
+      writeDeadline: 15
+  edged:
+    cgroupDriver: systemd
+    cgroupRoot: ""
+    cgroupsPerQOS: true
+    clusterDNS: ""
+    clusterDomain: ""
+    devicePluginEnabled: false
+    dockerAddress: unix:///var/run/docker.sock
+    gpuPluginEnabled: false
+    hostnameOverride: {{inventory_hostname}}
+    interfaceName: {{interface_name | default("eth0") }}
+    nodeIP: {{ansible_ssh_host}}
+    podSandboxImage: kubeedge/pause:3.2
+    remoteImageEndpoint: unix:///var/run/dockershim.sock
+    remoteRuntimeEndpoint: unix:///var/run/dockershim.sock
+    runtimeType: docker
+  eventBus:
+    mqttMode: 2
+    mqttQOS: 0
+    mqttRetain: false
+    mqttServerExternal: tcp://127.0.0.1:1883
+    mqttServerInternal: tcp://127.0.0.1:1884
+
+

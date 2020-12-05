@@ -1,0 +1,4 @@
+- include: k8s-master.yml
+  when: inventory_hostname in groups['k8s_master']
+#- include: cloudcore.yml
+#  when: inventory_hostname in groups['kubeedge_cloud']

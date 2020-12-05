@@ -1,0 +1,38 @@
+- name: Create host local directories 
+  file:
+    path: "~/.local/{{item.dir}}"
+    state: directory
+    mode: "{{item.mode}}"
+  with_items:
+  - {dir: bin, mode: '0775' }
+  - {dir: etc, mode: '0764' }
+  - {dir: share, mode: '0764' }
+  - {dir: share/devices, mode: '0764' }
+  - {dir: share/reliablesyncs, mode: '0764' }
+
+
+- name: Copy scripts
+  copy:
+    src: "{{item}}"
+    dest: "~/.local/bin/{{item}}"
+    mode: 0755
+  with_items:
+  - k8s_init.sh
+
+- name: Copy deployment script
+  copy:
+    src: "{{item}}"
+    dest: "~/.local/share/{{item}}"
+    mode: 0644
+  with_items:
+  - calico.yaml
+  
+- name: Deployment kubernetes master
+  shell: "/home/{{ ansible_ssh_user }}/.local/bin/k8s_init.sh /home/{{ ansible_ssh_user }}"
+  become: yes
+  
+- name: Deployment calico CNI
+  shell: export KUBECONFIG="/home/{{ansible_ssh_user}}/.kube/config" && kubectl apply -f /home/{{ ansible_ssh_user }}/.local/share/calico.yaml
+  become: yes
+
+  

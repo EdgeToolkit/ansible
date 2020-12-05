@@ -1,0 +1,4 @@
+- include: tokens.yml
+  when: inventory_hostname == "master"
+- include: join.yml
+  when: inventory_hostname in groups['node']

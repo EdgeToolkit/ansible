@@ -1,0 +1,20 @@
+
+
+
+- name: Retrieve KubeEdge deploymnet token
+  shell: kubectl get secret -nkubeedge tokensecret -o=jsonpath='{.data.tokendata}' | base64 -d
+  register: token
+  delegate_to: cloud
+#- debug:
+#    msg: "{{hostvars}}"
+- name: Generate edgecore config
+  template:
+    src: edgecore.yaml.j2
+    dest: ~/.local/etc/edgecore.yaml
+    mode: u=rw,g=r,o=r
+
+- name: Copy Edge  
+  copy:
+    src: edged.sh
+    dest: /home/{{ansible_ssh_user}}/.local/bin/edged.sh
+    mode: u=rwx,g=rx,o=rx

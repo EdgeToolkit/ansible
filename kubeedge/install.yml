@@ -1,0 +1,10 @@
+
+- hosts: edge
+  vars:
+    docker_install_compose: no
+  roles:
+    #- role: geerlingguy.docker
+    #  become: yes
+    #  when: inventory_hostname in groups['k8s_master'] or
+    #        inventory_hostname in groups['kubeedge_cloud']
+    - role: installer

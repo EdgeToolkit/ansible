@@ -1,0 +1,4 @@
+- name: Join node
+  script: ~/kubeadm-join.sh --node-name {{inventory_hostname}}
+  become: yes
+  
