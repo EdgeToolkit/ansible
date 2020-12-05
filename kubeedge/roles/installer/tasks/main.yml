@@ -19,7 +19,7 @@
 - include: k8s.yml
   when: inventory_hostname in groups['master'] or
         inventory_hostname in groups['cloud']
-- include: cloudcore.yml
-  when: inventory_hostname in groups['cloud'] or
+
 - include: kubeedge.yml
-  when: inventory_hostname in groups['edge']
+  when: inventory_hostname in groups['edge'] or
+        inventory_hostname in groups['cloud']

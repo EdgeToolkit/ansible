@@ -4,7 +4,7 @@
     path: /tmp/kubeedge-{{kubeedge_version}}
     state: directory
     mode: 0755
-  delegate_to: 
+  delegate_to: localhost
   
 - name: Download KubeEdge tarballs
   get_url:
