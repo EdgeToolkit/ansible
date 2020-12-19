@@ -28,21 +28,28 @@ class GitlabRunnerRecord(object):
     def token(self, id):
         return self._runner.get(id) or None
 
+    def _flush(self):
+        folder = os.path.dirname(self._path)
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        with open(self._path, 'w') as f:
+            yaml.safe_dump(self._runner, default_flow_style=False)
+
+
 class GitlabRunner(object):
     # Type
-    BUILDER = 'builder',
-    RUNNER = 'runner',
+    BUILDER = 'builder'
+    RUNNER = 'runner'
     DEPLOYER = 'deployer'
 
-    def __init__(self, config, record, type, hostname, bundle=None, group=None, property=None):
+    def __init__(self, config, record, type, hostname, bundle=None, property=None):
         """
         config_file
         rec_file: gitlab runner token , id record files
         """
         self._type = type
         self._hostname = hostname
-        self._bundle = bundle
-        self._group = group
+        self._bundle = bundle        
         self._property = property
         self._gitlab = None
         self._record = GitlabRunnerRecord(record)
@@ -50,6 +57,7 @@ class GitlabRunner(object):
         with open(path) as f:
             self._config = yaml.safe_load(f)
             self._config['__file__'] = path
+        
 
     @property
     def gitlab(self):
@@ -61,32 +69,26 @@ class GitlabRunner(object):
 
     @property
     def hash(self):
+        group = self._config['gitlab'].get('group') or None
         hash = {'hostname': self._hostname,
         'type': self._type,
         'bundle': self._bundle,
-        'property': self._property,
-        'group': self._group,
+        'group': group,
+        'property': self._property,        
         }
         return hash
 
-    def name(self):
-        name = f"{self._hostname}/{self._type}"
-        if self._group:
-            name = f"{self._group}:{name}"
-        if self._bundle:
-            name = f"{name}/{self._bundle}"
-        if self._device:
-            name = f"{name}[{self._device}]"
-        return name
-
     def register(self):
         if self.get() is None:
+            description = f"{self._hostname}/{self._type}"
             token = self._config['gitlab']['register_token']
-            runner = gitlab.runners.create({'token': token,
-                                      'description': self.name,
-                                      'info': {'name': self.name}
+            hash = yaml.safe_dump(self.hash, default_flow_style=False)
+            print(hash)
+            runner = self.gitlab.runners.create({'token': token,
+                                      'description': description,
+                                      'info': {'name': hash}
                                       })
-            self.db.add(runner.id, runner.token, hash=self.hash)
+            self._record.set(runner.id, runner.token, hash=self.hash)
 
     def delete(self):
         runner = self.get()
@@ -95,17 +97,21 @@ class GitlabRunner(object):
 
     def get(self):
         for runner in self.gitlab.runners.list():
-            hash = yaml.safe_load(runner.name or "")
-            if cmp(hash, self.hash):
-                return runner
+            try:
+                hash = yaml.safe_load(runner.name or "")
+                if hash ==  self.hash:
+                    return runner
+            except Exception as e:                
+                pass
         return None
 
     def update(self, tags):
         pass
-    
+
 
 
 if __name__ == '__main__':
     runner = GitlabRunner('~/.edgetoolkit/config/gitlab-runner/oss.yml', '~/.edgetoolkit/config/gitlab-runner/runner-db.yml',
-    GitlabRunner.BUILDER, hostname="1.2.3.4", bundle='toolset', group='oss')
+    GitlabRunner.BUILDER, hostname="1.2.3.4", bundle='toolset', group='oss',
+    property={'a': 'b', 'c':'d'})
     runner.register()
